@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Image, ImageBackground, TouchableHighlight, StyleSheet } from 'react-native';
-import { createStackNavigator, createTabNavigator } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator as createTabNavigator } from 'react-navigation';
 import FontAwesome, { Icons } from 'react-native-fontawesome';
 import LogInLogUpScreen from './LogInPanel';
 import HealthStack from './HealthStack';
