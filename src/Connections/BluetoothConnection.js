@@ -7,7 +7,6 @@ import {
   View,
   ImageBackground,
   TouchableHighlight,
-  NativeAppEventEmitter,
   NativeEventEmitter,
   NativeModules,
   Platform,
@@ -38,6 +37,8 @@ export default class App extends Component {
       peripheralsDisabled: false,
       connected: false,
       name: '',
+      light_on: true,
+      speed_subscribed: false,
       currentSpeed: 0,
       id: '',
       lightOn: false,
@@ -78,7 +79,6 @@ export default class App extends Component {
             }
       });
     }
-    setInterval(()=>{this.setState({currentSpeed: this.state.currentSpeed+1})},1000);
   }
 
   handleAppStateChange(nextAppState) {
@@ -111,6 +111,12 @@ export default class App extends Component {
 
   handleUpdateValueForCharacteristic(data) {
     console.log('Received data from ' + data.peripheral + ' characteristic ' + data.characteristic, data.value);
+    if(this.state.currentSpeed == data.value[0]){
+        console.log("Same data recieved");
+    }
+    else{
+    this.setState({currentSpeed: data.value[0]})
+    }
   }
 
   handleStopScan() {
@@ -258,7 +264,7 @@ export default class App extends Component {
                 });
               }, 200);
 
-          }, 900);
+          }, 200);
   }
 
   LightRight(id){
@@ -294,7 +300,7 @@ export default class App extends Component {
                 });
               }, 200);
 
-          }, 900);
+          }, 200);
   }
   LightLeft(id){
     var Buffer = require('buffer/').Buffer 
@@ -329,7 +335,60 @@ export default class App extends Component {
                 });
               }, 200);
 
-          }, 900);
+          }, 200);
+  }
+
+  startSpeed(id){
+      if(this.state.speed_subscribed){
+        var service = 'ea87e794-ec03-11e8-8eb2-f2801f1b9fd1';
+        var turnLeftCharacteristic = 'ef1b472c-f227-11e8-8eb2-f2801f1b9fd1';
+
+        setTimeout(() => {
+          BleManager.stopNotification(id, service, turnLeftCharacteristic)
+          .then(() => {
+            // Success code
+         
+            // const buffer = Buffer.Buffer.from(readData);    //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
+            // const sensorData = buffer.readUInt8(1, true);
+            this.setState({speed_subscribed: false});
+            alert('Tachometer stopped')
+          })
+          .catch((error) => {
+            // Failure code
+            console.log(error);
+          });
+        }, 200);
+      }
+      else{
+
+        /* Test read current RSSI value
+        BleManager.retrieveServices(peripheral.id).then((peripheralData) => {
+          console.log('Retrieved peripheral services', peripheralData);
+          BleManager.readRSSI(peripheral.id).then((rssi) => {
+            console.log('Retrieved actual RSSI value', rssi);
+          });
+        });*/
+
+        // Test using bleno's pizza example
+        // https://github.com/sandeepmistry/bleno/tree/master/examples/pizza
+          var service = 'ea87e794-ec03-11e8-8eb2-f2801f1b9fd1';
+          var turnLeftCharacteristic = 'ef1b472c-f227-11e8-8eb2-f2801f1b9fd1';
+          setTimeout(() => {
+            BleManager.startNotification(id, service, turnLeftCharacteristic)
+            .then(() => {
+                // Success code
+             
+                // const buffer = Buffer.Buffer.from(readData);    //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
+                // const sensorData = buffer.readUInt8(1, true);
+                this.setState({speed_subscribed: true});
+                alert('Tachometer started')
+            })
+            .catch((error) => {
+              // Failure code
+              console.log(error);
+            });
+          }, 200);
+    }
   }
 
   create_Bond(peripheral){
@@ -365,17 +424,17 @@ export default class App extends Component {
           <Text><FontAwesome color='blue'>{Icons.bluetooth}</FontAwesome>The Device Connected to : <Text style={{color:'red'}}>{this.state.name}</Text>.(press to disconnect)</Text>
         </TouchableHighlight>
         <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}>
-        <TouchableHighlight style={[styles.button,{marginTop: 0, backgroundColor: 'white'}]} onPress={() => {alert("Under Construction")} }>
+        <TouchableHighlight style={[styles.buttonIN,{marginTop: 0, backgroundColor: 'white'}]} onPress={() => {alert("Under Construction")} }>
           <Image source={require('../../img/heartbeat.gif')} style={styles.image} />
         </TouchableHighlight>
-        <TouchableHighlight style={[styles.button,{marginTop: 0}]} disabled={true} >
+        <TouchableHighlight style={[styles.buttonIN,{marginTop: 0}]} disabled={true} >
         <Speedometer
             value={this.state.currentSpeed}
-            totalValue={50}
+            totalValue={20}
             size={180}
             outerColor="#d3d3d3"
             showText
-            text="50.00"
+            text="20.00"
             textStyle={{ color: 'green' }}
             showLabels
             labelStyle={{ color: 'blue' }}
@@ -384,6 +443,9 @@ export default class App extends Component {
         />
         </TouchableHighlight>
         </View>
+        <TouchableHighlight onPress={()=>{this.startSpeed(this.state.id)}} style={styles.tachometer}>
+            <Text style={{color: 'black', fontSize: 35}}><FontAwesome color='black'>{Icons.tachometer}</FontAwesome>{this.state.speed_subscribed?"Stop Tachometer":'Start Tachometer'}</Text>
+        </TouchableHighlight>
         <Text ><FontAwesome color='yellow'>{Icons.lightbulbO}</FontAwesome><Text style={{color:'red', fontSize: 25}}>Light Control</Text></Text>
         <View style={{display: this.state.connected?'flex':'none', marginTop: 10, paddingTop: 10, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}>
           <TouchableHighlight onPress={()=>{this.LightLeft(this.state.id)}}><TriangleLeft/></TouchableHighlight>
@@ -464,7 +526,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 100,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: 'lightblue'
+    borderBottomColor: 'lightgreen'
   },
   triangleLeft: {
     transform: [
@@ -505,8 +567,27 @@ const styles = StyleSheet.create({
       borderRadius: 15,
       margin: 5
   },
+  buttonIN: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems:'center',
+    width: 190,
+    backgroundColor: 'white',
+    height: 150,
+    borderRadius: 15,
+    margin: 5
+},
   image: {
       width: '60%',
       height: '85%'
+  },
+  tachometer:{
+      display: 'flex',
+      width: '90%',
+      height: 100,
+      backgroundColor: 'white',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 15,
   }
 });

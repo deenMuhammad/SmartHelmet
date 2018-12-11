@@ -3,6 +3,8 @@ package com.sinov;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.BV.LinearGradient.LinearGradientPackage;
+import com.rusel.RCTBluetoothSerial.RCTBluetoothSerialPackage;
 import it.innove.BleManagerPackage;
 import com.polidea.reactnativeble.BlePackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -26,6 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new LinearGradientPackage(),
+            new RCTBluetoothSerialPackage(),
             new BleManagerPackage(),
             new BlePackage(),
             new VectorIconsPackage()
