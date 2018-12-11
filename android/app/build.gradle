@@ -93,6 +93,8 @@ def enableSeparateBuildPerCPUArchitecture = false
  */
 def enableProguardInReleaseBuilds = false
 
+dependencies { implementation 'com.android.support:design:27.1.0' }
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -137,6 +139,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-maps')
     compile project(':react-native-linear-gradient')
     compile project(':react-native-bluetooth-serial')
     compile project(':react-native-ble-manager')

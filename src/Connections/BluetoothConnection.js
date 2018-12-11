@@ -37,7 +37,10 @@ export default class App extends Component {
       peripheralsDisabled: false,
       connected: false,
       name: '',
-      light_on: true,
+      light_on: false,
+      left_light: 'lightgreen',
+      right_light: 'lightgreen',
+      stopLigh: 'red',
       speed_subscribed: false,
       currentSpeed: 0,
       id: '',
@@ -256,7 +259,12 @@ export default class App extends Component {
                
                   // const buffer = Buffer.Buffer.from(readData);    //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
                   // const sensorData = buffer.readUInt8(1, true);
-                  alert('Stop Button is pressed and return data is ' + readData)
+                  if(this.state.stopLigh==='red'){
+                    this.setState({stopLigh: 'lightyellow'});
+                  }
+                  else{
+                    this.setState({stopLigh: 'red'});
+                  }
                 })
                 .catch((error) => {
                   // Failure code
@@ -292,7 +300,12 @@ export default class App extends Component {
                
                   // const buffer = Buffer.Buffer.from(readData);    //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
                   // const sensorData = buffer.readUInt8(1, true);
-                  alert('Right Button is pressed and return data is ' + readData)
+                  if(this.state.right_light==='lightgreen'){
+                    this.setState({right_light: 'lightyellow'});
+                  }
+                  else{
+                    this.setState({right_light: 'lightgreen'});
+                  }
                 })
                 .catch((error) => {
                   // Failure code
@@ -327,7 +340,12 @@ export default class App extends Component {
                
                   // const buffer = Buffer.Buffer.from(readData);    //https://github.com/feross/buffer#convert-arraybuffer-to-buffer
                   // const sensorData = buffer.readUInt8(1, true);
-                  alert('Left Button is pressed and return data is ' + readData)
+                  if(this.state.left_light==='lightgreen'){
+                    this.setState({left_light: 'lightyellow'});
+                  }
+                  else{
+                    this.setState({left_light: 'lightgreen'});
+                  }
                 })
                 .catch((error) => {
                   // Failure code
@@ -428,19 +446,20 @@ export default class App extends Component {
           <Image source={require('../../img/heartbeat.gif')} style={styles.image} />
         </TouchableHighlight>
         <TouchableHighlight style={[styles.buttonIN,{marginTop: 0}]} disabled={true} >
-        <Speedometer
+        <View><Speedometer
             value={this.state.currentSpeed}
             totalValue={20}
             size={180}
             outerColor="#d3d3d3"
             showText
-            text="20.00"
+            text="20km/h"
             textStyle={{ color: 'green' }}
             showLabels
             labelStyle={{ color: 'blue' }}
             showPercent
             percentStyle={{ color: 'red' }}
         />
+        <Text>{this.state.currentSpeed}km/h</Text></View>
         </TouchableHighlight>
         </View>
         <TouchableHighlight onPress={()=>{this.startSpeed(this.state.id)}} style={styles.tachometer}>
@@ -448,9 +467,9 @@ export default class App extends Component {
         </TouchableHighlight>
         <Text ><FontAwesome color='yellow'>{Icons.lightbulbO}</FontAwesome><Text style={{color:'red', fontSize: 25}}>Light Control</Text></Text>
         <View style={{display: this.state.connected?'flex':'none', marginTop: 10, paddingTop: 10, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}>
-          <TouchableHighlight onPress={()=>{this.LightLeft(this.state.id)}}><TriangleLeft/></TouchableHighlight>
-          <TouchableHighlight onPress={()=>{this.LightStop(this.state.id)}}><Square/></TouchableHighlight>
-          <TouchableHighlight onPress={()=>{this.LightRight(this.state.id)}}><TriangleRight/></TouchableHighlight>
+          <TouchableHighlight onPress={()=>{this.LightLeft(this.state.id)}}><TriangleLeft color={this.state.left_light}/></TouchableHighlight>
+          <TouchableHighlight onPress={()=>{this.LightStop(this.state.id)}}><Square color = {this.state.stopLigh}/></TouchableHighlight>
+          <TouchableHighlight onPress={()=>{this.LightRight(this.state.id)}}><TriangleRight color={this.state.right_light}/></TouchableHighlight>
         </View>
         </View>
         <ImageBackground source = {require('./../../img/background.jpg')} style={{width: '100%', height : '100%'}}>
@@ -497,21 +516,21 @@ class Triangle extends Component{
 class TriangleLeft extends Component{
   render() {
     return (
-      <Triangle style={styles.triangleLeft}/>
+      <Triangle style={[styles.triangleLeft, {borderBottomColor: this.props.color}]}/>
     )
   }
 };
 class TriangleRight extends Component{
   render(){
     return (
-      <Triangle style={styles.triangleRight}/>
+      <Triangle style={[styles.triangleRight, {borderBottomColor: this.props.color}]}/>
     )
   }
 };
 class Square extends Component{
   render() {
       return (
-          <View style={styles.square} />
+          <View style={[styles.square, {backgroundColor: this.props.color}]} />
       )
   }
 };
@@ -526,7 +545,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 100,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: 'lightgreen'
   },
   triangleLeft: {
     transform: [
@@ -542,7 +560,6 @@ const styles = StyleSheet.create({
     margin: 10,
     width: 110,
     height: 110,
-    backgroundColor: 'red'
 },
   container: {
     flex: 1,

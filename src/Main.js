@@ -100,10 +100,10 @@ export default createTabNavigator(
             <FontAwesome color = '#4bf442'>{Icons.home}</FontAwesome>
             }
     },
-        Health: { screen: HealthStack,
+        Map: { screen: HealthStack,
             navigationOptions: {
                 tabBarIcon: () =>
-                <FontAwesome color = '#4bf442'>{Icons.heart}</FontAwesome>
+                <FontAwesome color = '#4bf442'>{Icons.map}</FontAwesome>
                 }
         },
         Speed: { screen: SpeedStack,
